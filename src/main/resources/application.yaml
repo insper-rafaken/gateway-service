@@ -32,6 +32,16 @@ spring:
               predicates:
                 - Path=/auth/**
 
+            - id: orders
+              uri: http://order:8081
+              predicates:
+                - Path=/orders/**
+
+            - id: products
+              uri: http://product:8080
+              predicates:
+                - Path=/products/**
+
       metrics:
         enabled: true
 
