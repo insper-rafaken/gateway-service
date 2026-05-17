@@ -42,6 +42,11 @@ spring:
               predicates:
                 - Path=/products/**
 
+            - id: exchanges
+              uri: http://exchange:8080
+              predicates:
+                - Path=/exchanges/**
+
       metrics:
         enabled: true
 
