@@ -1,0 +1,53 @@
+# ─── ConfigMap ──────────────────────────────────────────────────────────────
+# Atualize CORS_ALLOWED_ORIGINS com o domínio real em produção
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+data:
+  CORS_ALLOWED_ORIGINS: "http://localhost"
+  CORS_ALLOWED_CREDENTIALS: "true"
+---
+# ─── Gateway Deployment ─────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: rafaelken/gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: gateway-config
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+---
+# ─── Gateway Service (LoadBalancer → EKS provisionará ALB/NLB) ──────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector:
+    app: gateway
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
